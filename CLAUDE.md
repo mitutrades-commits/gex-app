@@ -1,24 +1,56 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+GAD Gamma Exposure Dashboard app with frontend and backend api.
 
 ## Commands
 
+## Stack
+
+- Frontend: React + Vite + Tailwind
+- Backend: Python + FastAPI
+- Database: LocalStorage
+
+## Rules
+
+- Python backend must use `nv` package tool with virtual environment
+
+## Planning
+
+- Save all plans to `.claude/plans/` folder
+- Naming Convention `{sequence}{plan-name}.md` (e.g., `1-auth-setup.md`)
+- Plan should be detailed enough to execute without ambiguity
+- Frontend design should always follow good UI/UX pattern and mobile friendly
+
+
+## Development Flow
+1. **Plan** - Create a detailed plan and save it to `.claude/plans/`
+2. **Build** - Execute the plan to implement the feature
+3. **Validate** - Test and verify the implementation works correctly. Use browser testing where applicable via an appropriate MCP
+4. **Iterate** - Fix any issues found during validation
+
+## Progress
+Check PROGRESS.md for current module status. Update it as you complete tasks.
+
+
 ### Start both services (from repo root)
+
 ```bash
 ./start.sh
 ```
 
 ### Backend — always run from repo root
+
 ```bash
 # From D:/Gomes/Dev/gex-app (NOT from inside backend/)
 uv run uvicorn backend.main:app --reload --port 8000
 ```
+
 The `backend/` folder is a Python package. Running from inside it causes `ModuleNotFoundError: No module named 'backend'`.
 
 API docs: http://localhost:8000/docs
 
 ### Frontend
+
 ```bash
 cd frontend
 npm install
@@ -27,35 +59,41 @@ npm run build
 ```
 
 ### Python dependency management
+
 ```bash
 uv add <package>   # add dependency (updates pyproject.toml + uv.lock)
 uv sync            # install all deps
 ```
 
 ### Adapter selection
+
 Controlled by `GEX_ADAPTER` env var in `backend/.env` (gitignored):
+
 ```
 GEX_ADAPTER=flash_alpha
 FLASH_ALPHA_API_KEY=<key>
 ```
+
 Default is `seed` (hardcoded SPX/SPY/QQQ data). Set to `flash_alpha` for live data.
 
 ## Known API Shape Differences (Flash Alpha)
 
 The two Flash Alpha endpoints return **different field names** for the same data:
 
-| Field         | `/flow/gex/{symbol}`  | `/exposure/gex/{symbol}?expiration=` |
-|---------------|-----------------------|---------------------------------------|
-| Gamma flip    | `live_gamma_flip`     | `gamma_flip`                          |
-| Net GEX       | `live_net_gex`        | `net_gex`                             |
-| GEX label     | `live_net_gex_label`  | `net_gex_label`                       |
-| Spot price    | `underlying_price`    | `underlying_price`                    |
-| Strikes array | `strikes`             | `strikes`                             |
+| Field         | `/flow/gex/{symbol}` | `/exposure/gex/{symbol}?expiration=` |
+| ------------- | -------------------- | ------------------------------------ |
+| Gamma flip    | `live_gamma_flip`    | `gamma_flip`                         |
+| Net GEX       | `live_net_gex`       | `net_gex`                            |
+| GEX label     | `live_net_gex_label` | `net_gex_label`                      |
+| Spot price    | `underlying_price`   | `underlying_price`                   |
+| Strikes array | `strikes`            | `strikes`                            |
 
 The adapter (`backend/adapters/flash_alpha.py`) handles both with `.get()` fallbacks:
+
 ```python
 flip = data.get("live_gamma_flip") or data["gamma_flip"]
 ```
+
 **Never assume `/exposure` returns the same keys as `/flow`.** Always check both field names when adding new fields from Flash Alpha responses.
 
 ## Architecture
@@ -87,6 +125,7 @@ backend/
 ```
 
 **Flash Alpha integration:**
+
 - Endpoint: `GET https://lab.flashalpha.com/v1/flow/gex/{symbol}`
 - Auth: `X-API-Key` header (not Bearer)
 - Returns 736 strikes for SPX — `/api/gex` defaults to `?strikes=50` around spot
@@ -128,6 +167,7 @@ src/
 ```
 
 **Responsive breakpoints (Tailwind):**
+
 - `< sm` (mobile): tabbed symbol selector, single column
 - `sm`–`lg` (tablet): 2-column grid
 - `lg+` (desktop): 3-column grid
