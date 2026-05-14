@@ -6,7 +6,7 @@ import { fmtGex, fmtSpot, fmtStrike } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { fetchDealerRisk } from "@/api";
 
-export default function InstrumentColumn({ inst }) {
+export default function InstrumentColumn({ inst, compact = false }) {
   const { symbol, spot, flip, net_gex, regime, strikes } = inst;
 
   const isPos = spot >= flip;
@@ -58,7 +58,7 @@ export default function InstrumentColumn({ inst }) {
   }
 
   return (
-    <div className="flex flex-col gap-3 animate-[fadeIn_0.35s_ease_both]">
+    <div className={cn("flex flex-col animate-[fadeIn_0.35s_ease_both]", compact ? "gap-2" : "gap-3")}>
       {/* Stat chips — single row */}
       <div className="grid grid-cols-4 gap-1.5">
         <StatChip
@@ -107,9 +107,9 @@ export default function InstrumentColumn({ inst }) {
         {/* Frozen header rows */}
         <div className="flex-none">
           {/* Header */}
-          <div className="flex items-center justify-between px-4 py-2.5 bg-[var(--surface-2)] border-b border-[var(--border)]">
+          <div className={cn("flex items-center justify-between bg-[var(--surface-2)] border-b border-[var(--border)]", compact ? "px-3 py-1.5" : "px-4 py-2.5")}>
             <div className="flex items-center gap-2">
-              <span className="font-mono text-sm font-semibold tracking-widest text-text-1">
+              <span className={cn("font-mono font-semibold tracking-widest text-text-1", compact ? "text-xs" : "text-sm")}>
                 {symbol}
               </span>
               <Badge variant={isPos ? "positive" : "negative"}>
@@ -156,7 +156,7 @@ export default function InstrumentColumn({ inst }) {
         </div>
 
         {/* Scrollable strike rows */}
-        <div className="overflow-y-auto max-h-[420px]">
+        <div className={cn("overflow-y-auto", compact ? "max-h-[240px]" : "max-h-[420px]")}>
           {sortedStrikes.map((d) => (
             <Fragment key={d.strike}>
               <StrikeRow
@@ -165,6 +165,7 @@ export default function InstrumentColumn({ inst }) {
                 maxNet={maxNet}
                 maxCall={maxCall}
                 maxPut={maxPut}
+                compact={compact}
               />
               {d.is_spot && (
                 <div className="relative h-px z-10 overflow-visible">

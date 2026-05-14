@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils"
 
 const MAX_W = 44
 
-export default function StrikeRow({ d, symbol, maxNet, maxCall, maxPut }) {
+export default function StrikeRow({ d, symbol, maxNet, maxCall, maxPut, compact = false }) {
   const isPos = d.net_gex >= 0
   const netW  = (Math.abs(d.net_gex) / maxNet) * MAX_W
   const callW = (d.call_gex / maxCall) * MAX_W
@@ -11,7 +11,7 @@ export default function StrikeRow({ d, symbol, maxNet, maxCall, maxPut }) {
 
   return (
     <div className={cn(
-      "group grid items-center min-h-[28px] px-3 border-b border-[var(--border-soft)]",
+      `group grid items-center ${compact ? "min-h-[20px] py-0.5" : "min-h-[28px]"} px-3 border-b border-[var(--border-soft)]`,
       "grid-cols-[56px_1fr_64px] transition-colors duration-100",
       d.is_flip ? "bg-amber/5 hover:bg-amber/10" : "hover:bg-white/[0.015]",
     )}>

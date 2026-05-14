@@ -25,7 +25,7 @@ const CustomTooltip = ({ active, payload, label }) => {
   )
 }
 
-export default function IntradayChart({ symbol, instrument }) {
+export default function IntradayChart({ symbol, instrument, height = 300 }) {
   const { series, loading } = useIntraday(symbol)
 
   if (loading) return <Skeleton className="h-48 w-full rounded-xl" />
@@ -52,7 +52,7 @@ export default function IntradayChart({ symbol, instrument }) {
           Intraday snapshots accumulate as the session progresses (60s interval)
         </p>
       )}
-      <ResponsiveContainer width="100%" height={200}>
+      <ResponsiveContainer width="100%" height={height}>
         <LineChart data={chartData} margin={{ top: 4, right: 8, left: 8, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#1e2736" vertical={false} />
           <XAxis
