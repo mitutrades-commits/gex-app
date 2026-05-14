@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils"
 
 const MAX_W = 44
 
-export default function StrikeRow({ d, symbol, maxNet, maxCall, maxPut, compact = false }) {
+export default function StrikeRow({ d, symbol, maxNet, maxCall, maxPut, compact = false, tags = [] }) {
   const isPos = d.net_gex >= 0
   const netW  = (Math.abs(d.net_gex) / maxNet) * MAX_W
   const callW = (d.call_gex / maxCall) * MAX_W
@@ -13,17 +13,30 @@ export default function StrikeRow({ d, symbol, maxNet, maxCall, maxPut, compact 
     <div className={cn(
       "group grid items-center min-h-[28px] px-3 border-b border-[var(--border-soft)] overflow-x-hidden",
       compact && "min-h-[20px] py-0.5",
-      "grid-cols-[56px_1fr_64px] transition-colors duration-100",
+      "grid-cols-[56px_72px_1fr_48px] gap-x-0 transition-colors duration-100",
       d.is_flip ? "bg-amber/5 hover:bg-amber/10" : "hover:bg-white/[0.015]",
     )}>
       {/* Strike label */}
       <span className={cn(
         "font-mono tabular-nums text-[10px] font-medium tracking-wide text-right",
-        d.is_flip ? "text-amber" : "text-[var(--text-2)]",
+        "text-[var(--text-2)]",
         d.is_spot && "text-[var(--text-1)] font-semibold",
       )}>
         {fmtStrike(symbol, d.strike)}
       </span>
+
+      {/* Key level tags */}
+      <div className="flex items-center gap-1 min-w-0">
+        {tags.map((t) => (
+          <span
+            key={t.label}
+            className="font-mono text-[7px] uppercase tracking-widest px-1.5 py-px rounded-sm border whitespace-nowrap"
+            style={{ color: t.color, borderColor: `${t.color}40`, background: `${t.color}12` }}
+          >
+            {t.label}
+          </span>
+        ))}
+      </div>
 
       {/* Bar area */}
       <div className="relative h-[18px]">
@@ -55,14 +68,6 @@ export default function StrikeRow({ d, symbol, maxNet, maxCall, maxPut, compact 
           />
         )}
 
-        {/* Flip badge */}
-        {d.is_flip && (
-          <div className="absolute left-1/2 -top-2 -translate-x-1/2 whitespace-nowrap z-10
-            font-mono text-[7px] uppercase tracking-widest text-blue
-            bg-[var(--surface-2)] border border-blue/30 rounded-sm px-1 py-px">
-            γ flip
-          </div>
-        )}
       </div>
 
       {/* Net GEX value */}
@@ -72,6 +77,7 @@ export default function StrikeRow({ d, symbol, maxNet, maxCall, maxPut, compact 
       )}>
         {fmtGex(d.net_gex)}
       </span>
+
     </div>
   )
 }

@@ -12,7 +12,8 @@
       "Bash(curl -s \"http://localhost:8000/api/gex/SPX/dealer-risk\")",
       "Bash(curl -s \"http://localhost:8000/api/dealer-risk/SPX\")",
       "Bash(curl -v \"http://localhost:8000/api/dealer-risk/SPX\")",
-      "Bash(curl *)"
+      "Bash(curl *)",
+      "Bash(git push *)"
     ]
   }
 }

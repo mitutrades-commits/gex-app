@@ -1,13 +1,18 @@
 import { Fragment, useState, useEffect, useRef } from "react";
-import StatCard, { StatChip, StatBar } from "./StatCard";
 import StrikeRow from "./StrikeRow";
 import { Badge } from "@/components/ui/badge";
 import { fmtGex, fmtSpot, fmtStrike } from "@/lib/format";
 import { cn } from "@/lib/utils";
-import { fetchDealerRisk } from "@/api";
+
+const TAG_COLOR = {
+  call: "#22c55e",
+  flip: "#3b82f6",
+  put:  "#ef4444",
+  pin:  "#f59e0b",
+};
 
 export default function InstrumentColumn({ inst, compact = false }) {
-  const { symbol, spot, flip, net_gex, regime, strikes } = inst;
+  const { symbol, spot, flip, net_gex, strikes } = inst;
 
   const isPos = spot >= flip;
 
@@ -24,26 +29,9 @@ export default function InstrumentColumn({ inst, compact = false }) {
     Math.abs(b.net_gex) > Math.abs(a.net_gex) ? b : a,
   );
 
-  const maxNet = Math.max(...strikes.map((s) => Math.abs(s.net_gex)));
+  const maxNet  = Math.max(...strikes.map((s) => Math.abs(s.net_gex)));
   const maxCall = Math.max(...strikes.map((s) => s.call_gex));
-  const maxPut = Math.max(...strikes.map((s) => Math.abs(s.put_gex)));
-
-  const [dealerRisk, setDealerRisk] = useState(null);
-
-  useEffect(() => {
-    let cancelled = false;
-    async function load() {
-      try {
-        const data = await fetchDealerRisk(symbol);
-        if (!cancelled) setDealerRisk(data);
-      } catch {
-        // silently skip — card stays hidden
-      }
-    }
-    load();
-    const id = setInterval(load, 60_000);
-    return () => { cancelled = true; clearInterval(id); };
-  }, [symbol]);
+  const maxPut  = Math.max(...strikes.map((s) => Math.abs(s.put_gex)));
 
   const spotRef = useRef(null);
 
@@ -65,49 +53,17 @@ export default function InstrumentColumn({ inst, compact = false }) {
     setNetGexSort((s) => (s === null ? "desc" : s === "desc" ? "asc" : null));
   }
 
+  function tagsForStrike(d) {
+    const tags = [];
+    if (d.strike === callWallS.strike) tags.push({ label: "Call Wall", color: TAG_COLOR.call });
+    if (d.is_flip)                     tags.push({ label: "γ Flip",    color: TAG_COLOR.flip });
+    if (d.strike === pinS.strike)      tags.push({ label: "Pin",       color: TAG_COLOR.pin  });
+    if (d.strike === putWallS.strike)  tags.push({ label: "Put Wall",  color: TAG_COLOR.put  });
+    return tags;
+  }
+
   return (
     <div className={cn("flex flex-col animate-[fadeIn_0.35s_ease_both]", compact ? "gap-2" : "gap-3")}>
-      {/* Stat chips — single row, 5 columns when dealer risk available */}
-      <div className={cn("grid gap-1.5", dealerRisk ? "grid-cols-5" : "grid-cols-4")}>
-        <StatChip
-          type="call"
-          label="Call Wall"
-          value={fmtStrike(symbol, callWallS.strike)}
-          sub1={fmtGex(callWallS.call_gex)}
-          sub2="Resistance"
-        />
-        <StatChip
-          type="flip"
-          label="γ Flip"
-          value={fmtStrike(symbol, flip)}
-          sub1={isPos ? '<span style="color:var(--green)">+GEX above</span>' : '<span style="color:var(--red)">−GEX below</span>'}
-          sub2="Zero gamma"
-        />
-        <StatChip
-          type="put"
-          label="Put Wall"
-          value={fmtStrike(symbol, putWallS.strike)}
-          sub1={fmtGex(putWallS.put_gex)}
-          sub2="Support"
-        />
-        <StatChip
-          type="pin"
-          label="Pin Strike"
-          value={fmtStrike(symbol, pinS.strike)}
-          sub1={fmtGex(pinS.net_gex)}
-          sub2="Intraday magnet"
-        />
-        {dealerRisk && (
-          <StatChip
-            type="dealer"
-            label="Dealer Risk"
-            value={dealerRisk.flow_direction.toUpperCase()}
-            sub1={`${(dealerRisk.flow_gex_pct_shift * 100).toFixed(1)}% GEX shift`}
-            sub2={dealerRisk.description}
-          />
-        )}
-      </div>
-
       {/* Ladder card */}
       <div className="rounded-xl border border-[var(--border)] bg-[var(--surface)] overflow-hidden flex flex-col">
         {/* Frozen header rows */}
@@ -132,20 +88,16 @@ export default function InstrumentColumn({ inst, compact = false }) {
             </span>
             <span className="font-mono text-[8px] text-text-2">
               Net:{" "}
-              <span
-                className={cn(
-                  "font-semibold",
-                  isPos ? "text-green" : "text-red",
-                )}
-              >
+              <span className={cn("font-semibold", isPos ? "text-green" : "text-red")}>
                 {fmtGex(net_gex)}
               </span>
             </span>
           </div>
 
           {/* Column headers */}
-          <div className="grid grid-cols-[56px_1fr_64px] px-3 py-1.5 bg-[var(--surface-2)] border-b border-[var(--border)]">
+          <div className="grid grid-cols-[56px_72px_1fr_48px] px-3 py-1.5 bg-[var(--surface-2)] border-b border-[var(--border)]">
             <span className="font-mono text-[8px] uppercase tracking-widest text-text-2">Strike</span>
+            <span />
             <span className="font-mono text-[8px] uppercase tracking-widest text-text-2 text-center">← Put · Net GEX · Call →</span>
             <button
               onClick={cycleNetGexSort}
@@ -172,6 +124,7 @@ export default function InstrumentColumn({ inst, compact = false }) {
                 maxCall={maxCall}
                 maxPut={maxPut}
                 compact={compact}
+                tags={tagsForStrike(d)}
               />
               {d.is_spot && (
                 <div ref={spotRef} className="relative h-px z-10 overflow-visible">
