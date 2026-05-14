@@ -1,0 +1,84 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* shadcn semantic tokens mapped to existing dark palette */
+    --background: 222 20% 7%;
+    --foreground: 220 30% 88%;
+    --card: 222 22% 10%;
+    --card-foreground: 220 30% 88%;
+    --primary: 210 75% 60%;
+    --primary-foreground: 222 20% 7%;
+    --muted: 222 20% 13%;
+    --muted-foreground: 220 18% 52%;
+    --accent: 222 20% 16%;
+    --accent-foreground: 220 30% 88%;
+    --destructive: 0 65% 60%;
+    --destructive-foreground: 220 30% 88%;
+    --border: 220 20% 17%;
+    --input: 222 20% 13%;
+    --ring: 210 75% 60%;
+    --radius: 0.5rem;
+
+    /* Legacy CSS vars kept for any remaining inline styles */
+    --bg:          #0b0e13;
+    --surface:     #111520;
+    --surface-2:   #161c28;
+    --surface-3:   #1a2235;
+    --border-color: #1e2736;
+    --border-soft: #161d2b;
+    --green:       #2dc88a;
+    --green-dim:   rgba(45,200,138,0.12);
+    --red:         #e05252;
+    --red-dim:     rgba(224,82,82,0.12);
+    --blue:        #4d8fea;
+    --blue-dim:    rgba(77,143,234,0.12);
+    --amber:       #d4a843;
+    --amber-dim:   rgba(212,168,67,0.10);
+    --text-1:      #d8e0ec;
+    --text-2:      #7a8aa8;
+    --text-3:      #44556e;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text-1);
+    font-family: 'IBM Plex Sans', sans-serif;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::-webkit-scrollbar { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 2px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--text-3); }
+}
+
+@layer utilities {
+  .gex-positive { color: #2dc88a; }
+  .gex-negative { color: #e05252; }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+@keyframes shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}

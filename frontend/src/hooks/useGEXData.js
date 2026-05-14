@@ -1,0 +1,53 @@
+import { useState, useEffect, useRef, useCallback } from "react"
+import { fetchAllGEX } from "@/api"
+
+const REFRESH_INTERVAL = 30
+
+export function useGEXData() {
+  const [data, setData] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+  const [elapsed, setElapsed] = useState(0)
+  const intervalRef = useRef(null)
+  const tickRef = useRef(null)
+
+  const load = useCallback(async () => {
+    setLoading(true)
+    setError(null)
+    setElapsed(0)
+    try {
+      const json = await fetchAllGEX()
+      setData(json)
+    } catch (e) {
+      setError(e.message)
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    load()
+    intervalRef.current = setInterval(load, REFRESH_INTERVAL * 1000)
+    tickRef.current = setInterval(
+      () => setElapsed(e => Math.min(e + 1, REFRESH_INTERVAL)),
+      1000
+    )
+    return () => {
+      clearInterval(intervalRef.current)
+      clearInterval(tickRef.current)
+    }
+  }, [load])
+
+  const refresh = useCallback(() => {
+    clearInterval(intervalRef.current)
+    clearInterval(tickRef.current)
+    load()
+    intervalRef.current = setInterval(load, REFRESH_INTERVAL * 1000)
+    tickRef.current = setInterval(
+      () => setElapsed(e => Math.min(e + 1, REFRESH_INTERVAL)),
+      1000
+    )
+  }, [load])
+
+  return { data, loading, error, elapsed, refresh, REFRESH_INTERVAL }
+}
