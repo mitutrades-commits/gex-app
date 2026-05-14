@@ -1,5 +1,5 @@
 import { Fragment, useState, useEffect } from "react";
-import StatCard from "./StatCard";
+import StatCard, { StatChip, StatBar } from "./StatCard";
 import StrikeRow from "./StrikeRow";
 import { Badge } from "@/components/ui/badge";
 import { fmtGex, fmtSpot, fmtStrike } from "@/lib/format";
@@ -59,34 +59,30 @@ export default function InstrumentColumn({ inst }) {
 
   return (
     <div className="flex flex-col gap-3 animate-[fadeIn_0.35s_ease_both]">
-      {/* Stat cards */}
-      <div className="grid grid-cols-2 gap-2">
-        <StatCard
+      {/* Stat chips — single row */}
+      <div className="grid grid-cols-4 gap-1.5">
+        <StatChip
           type="call"
           label="Call Wall"
           value={fmtStrike(symbol, callWallS.strike)}
           sub1={fmtGex(callWallS.call_gex)}
           sub2="Resistance"
         />
-        <StatCard
+        <StatChip
           type="flip"
           label="γ Flip"
           value={fmtStrike(symbol, flip)}
-          sub1={
-            isPos
-              ? '<span style="color:var(--green)">+GEX above</span>'
-              : '<span style="color:var(--red)">−GEX below</span>'
-          }
+          sub1={isPos ? '<span style="color:var(--green)">+GEX above</span>' : '<span style="color:var(--red)">−GEX below</span>'}
           sub2="Zero gamma"
         />
-        <StatCard
+        <StatChip
           type="put"
           label="Put Wall"
           value={fmtStrike(symbol, putWallS.strike)}
           sub1={fmtGex(putWallS.put_gex)}
           sub2="Support"
         />
-        <StatCard
+        <StatChip
           type="pin"
           label="Pin Strike"
           value={fmtStrike(symbol, pinS.strike)}
@@ -95,9 +91,9 @@ export default function InstrumentColumn({ inst }) {
         />
       </div>
 
-      {/* Dealer Risk card */}
+      {/* Dealer Risk bar */}
       {dealerRisk && (
-        <StatCard
+        <StatBar
           type="dealer"
           label="Dealer Risk"
           value={dealerRisk.flow_direction.toUpperCase()}
