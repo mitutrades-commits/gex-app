@@ -1,4 +1,4 @@
-import { Fragment, useState, useEffect, useRef } from "react";
+import { Fragment, useState, useEffect, useRef, useCallback } from "react";
 import StrikeRow from "./StrikeRow";
 import { Badge } from "@/components/ui/badge";
 import { fmtGex, fmtSpot, fmtStrike } from "@/lib/format";
@@ -11,7 +11,11 @@ const TAG_COLOR = {
   pin:  "#f59e0b",
 };
 
-export default function InstrumentColumn({ inst, compact = false }) {
+const DEFAULT_HEIGHT = 420;
+const MIN_HEIGHT = 120;
+const MAX_HEIGHT = 700;
+
+export default function InstrumentColumn({ inst, compact = false, resizable = false }) {
   const { symbol, spot, flip, net_gex, strikes } = inst;
 
   const isPos = spot >= flip;
@@ -40,6 +44,63 @@ export default function InstrumentColumn({ inst, compact = false }) {
       spotRef.current.scrollIntoView({ block: "center" });
     }
   }, [inst]);
+
+  const storageKey = `gex:ladder-height:${symbol}`;
+
+  const [ladderHeight, setLadderHeight] = useState(() => {
+    if (!resizable) return DEFAULT_HEIGHT;
+    const saved = localStorage.getItem(storageKey);
+    const parsed = parseInt(saved, 10);
+    return !isNaN(parsed) && parsed >= MIN_HEIGHT && parsed <= MAX_HEIGHT
+      ? parsed
+      : DEFAULT_HEIGHT;
+  });
+
+  const ladderHeightRef = useRef(ladderHeight);
+  useEffect(() => { ladderHeightRef.current = ladderHeight; }, [ladderHeight]);
+
+  const dragState = useRef(null);
+
+  const handleDragMouseDown = useCallback(
+    (e) => {
+      if (!resizable || compact) return;
+      e.preventDefault();
+      document.body.style.userSelect = "none";
+      dragState.current = { startY: e.clientY, startHeight: ladderHeightRef.current };
+
+      function onMouseMove(ev) {
+        const dy = ev.clientY - dragState.current.startY;
+        const next = Math.min(MAX_HEIGHT, Math.max(MIN_HEIGHT, dragState.current.startHeight + dy));
+        setLadderHeight(next);
+      }
+
+      function onMouseUp(ev) {
+        const dy = ev.clientY - dragState.current.startY;
+        const next = Math.min(MAX_HEIGHT, Math.max(MIN_HEIGHT, dragState.current.startHeight + dy));
+        localStorage.setItem(storageKey, String(next));
+        document.body.style.userSelect = "";
+        document.removeEventListener("mousemove", onMouseMove);
+        document.removeEventListener("mouseup", onMouseUp);
+        dragState.current = null;
+      }
+
+      dragState.current._onMouseMove = onMouseMove;
+      dragState.current._onMouseUp = onMouseUp;
+
+      document.addEventListener("mousemove", onMouseMove);
+      document.addEventListener("mouseup", onMouseUp);
+    },
+    [resizable, compact, storageKey],
+  );
+
+  useEffect(() => {
+    return () => {
+      if (dragState.current) {
+        document.removeEventListener("mousemove", dragState.current._onMouseMove);
+        document.removeEventListener("mouseup", dragState.current._onMouseUp);
+      }
+    };
+  }, []);
 
   const [netGexSort, setNetGexSort] = useState(null); // null | "asc" | "desc"
 
@@ -113,7 +174,10 @@ export default function InstrumentColumn({ inst, compact = false }) {
         </div>
 
         {/* Scrollable strike rows */}
-        <div className={cn("overflow-y-auto", compact ? "max-h-[240px]" : "max-h-[420px]")}>
+        <div
+          className="overflow-y-auto"
+          style={{ height: compact ? 240 : ladderHeight, minHeight: compact ? 240 : MIN_HEIGHT }}
+        >
           {sortedStrikes.map((d) => (
             <Fragment key={d.strike}>
               <StrikeRow
@@ -136,6 +200,22 @@ export default function InstrumentColumn({ inst, compact = false }) {
             </Fragment>
           ))}
         </div>
+        {/* Drag handle — only shown when resizable and not compact */}
+        {resizable && !compact && (
+          <div
+            onMouseDown={handleDragMouseDown}
+            className="flex-none flex items-center justify-center h-3 border-t border-[var(--border)] cursor-ns-resize select-none group"
+            style={{ background: "var(--surface-2)" }}
+            title="Drag to resize"
+          >
+            <span
+              className="font-mono text-[10px] tracking-widest text-[var(--border)] group-hover:text-[var(--text-3)] transition-colors leading-none"
+              style={{ letterSpacing: "0.25em" }}
+            >
+              ⋯
+            </span>
+          </div>
+        )}
       </div>
     </div>
   );
