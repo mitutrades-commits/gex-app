@@ -1,4 +1,4 @@
-import { Activity, RefreshCw } from "lucide-react"
+import { RefreshCw } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import MarketClock from "./MarketClock"
@@ -30,11 +30,15 @@ export default function TopBar({ elapsed, total, loading, error, onRefresh, sour
 
   return (
     <div className="relative h-12 border-b border-[var(--border)] bg-[var(--surface-1)] px-4 flex items-center gap-3 shrink-0">
-      <Activity size={14} className="text-blue shrink-0" />
-      <h1 className="text-sm font-semibold tracking-wide text-[var(--text-1)] hidden sm:block">
-        Gamma Exposure Dashboard
-      </h1>
-      <h1 className="text-sm font-semibold tracking-wide text-[var(--text-1)] sm:hidden">GEX</h1>
+      <div className="flex items-center gap-2.5 shrink-0">
+        <span className="text-xl font-black tracking-tight leading-none" style={{ letterSpacing: "-0.08em" }}>
+          <span className="text-[#38bdf8]">G</span><span className="text-[var(--text-1)]">ED</span>
+        </span>
+        <div className="hidden sm:block w-px h-4 bg-[var(--border)]" />
+        <span className="hidden sm:block text-[9px] font-medium tracking-[0.2em] uppercase text-[var(--text-3)]">
+          Gamma Exposure Dashboard
+        </span>
+      </div>
 
       <div className="flex-1" />
 

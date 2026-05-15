@@ -17,3 +17,7 @@ frontend/.env.local
 # Frontend build
 frontend/dist
 frontend/node_modules
+
+# Claude Code editor settings (local only)
+.claude/settings.json
+.claude/settings.local.json
