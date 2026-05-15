@@ -198,7 +198,7 @@ export default function WatchlistMode() {
         {selected && !loading && !error && instData && (
           <div className="p-4 flex flex-col xl:flex-row gap-4 min-w-0">
             <div className="min-w-0 xl:w-[340px] xl:flex-shrink-0">
-              <InstrumentColumn inst={instData} />
+              <InstrumentColumn inst={instData} resizable />
             </div>
             <div className="min-w-0 flex-1">
               <IntradayChart symbol={selected} height={480} />

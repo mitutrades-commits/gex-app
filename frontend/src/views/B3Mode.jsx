@@ -36,7 +36,7 @@ export default function B3Mode({ gexData }) {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 min-w-0">
         {instruments.map(inst => (
           <div key={inst.symbol} className="min-w-0">
-            <InstrumentColumn inst={inst} />
+            <InstrumentColumn inst={inst} resizable />
           </div>
         ))}
       </div>
