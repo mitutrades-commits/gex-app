@@ -5,6 +5,7 @@ import {
 import { useIntraday } from "@/hooks/useIntraday"
 import { fmtGex } from "@/lib/format"
 import { Skeleton } from "@/components/ui/skeleton"
+import { useThemeColors } from "@/hooks/useTheme"
 
 function fmt(iso) {
   const d = new Date(iso)
@@ -27,6 +28,7 @@ const CustomTooltip = ({ active, payload, label }) => {
 
 export default function IntradayChart({ symbol, instrument, height = 300 }) {
   const { series, loading } = useIntraday(symbol)
+  const c = useThemeColors()
 
   if (loading) return <Skeleton className="h-48 w-full rounded-xl" />
 
@@ -54,10 +56,10 @@ export default function IntradayChart({ symbol, instrument, height = 300 }) {
       )}
       <ResponsiveContainer width="100%" height={height}>
         <LineChart data={chartData} margin={{ top: 4, right: 8, left: 8, bottom: 0 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#1e2736" vertical={false} />
+          <CartesianGrid strokeDasharray="3 3" stroke={c.grid} vertical={false} />
           <XAxis
             dataKey="time"
-            tick={{ fontFamily: "IBM Plex Mono", fontSize: 9, fill: "#7a8aa8" }}
+            tick={{ fontFamily: "IBM Plex Mono", fontSize: 9, fill: c.axis }}
             axisLine={false}
             tickLine={false}
             interval="preserveStartEnd"
@@ -66,7 +68,7 @@ export default function IntradayChart({ symbol, instrument, height = 300 }) {
             yAxisId="gex"
             orientation="left"
             tickFormatter={v => fmtGex(v)}
-            tick={{ fontFamily: "IBM Plex Mono", fontSize: 9, fill: "#7a8aa8" }}
+            tick={{ fontFamily: "IBM Plex Mono", fontSize: 9, fill: c.axis }}
             axisLine={false}
             tickLine={false}
             width={52}
@@ -74,29 +76,29 @@ export default function IntradayChart({ symbol, instrument, height = 300 }) {
           <YAxis
             yAxisId="price"
             orientation="right"
-            tick={{ fontFamily: "IBM Plex Mono", fontSize: 9, fill: "#7a8aa8" }}
+            tick={{ fontFamily: "IBM Plex Mono", fontSize: 9, fill: c.axis }}
             axisLine={false}
             tickLine={false}
             width={48}
           />
           <Tooltip content={<CustomTooltip />} />
-          <ReferenceLine yAxisId="gex" y={0} stroke="#1e2736" strokeWidth={1} />
+          <ReferenceLine yAxisId="gex" y={0} stroke={c.grid} strokeWidth={1} />
           <Line
             yAxisId="gex"
             type="monotone"
             dataKey="net_gex"
             name="Net GEX"
-            stroke={isPos ? "#2dc88a" : "#e05252"}
+            stroke={isPos ? c.pos : c.neg}
             strokeWidth={2}
             dot={false}
-            activeDot={{ r: 3, fill: isPos ? "#2dc88a" : "#e05252" }}
+            activeDot={{ r: 3, fill: isPos ? c.pos : c.neg }}
           />
           <Line
             yAxisId="price"
             type="monotone"
             dataKey="flip"
             name="Gamma Flip"
-            stroke="#4d8fea"
+            stroke={c.flip}
             strokeWidth={1.5}
             strokeDasharray="4 2"
             dot={false}
