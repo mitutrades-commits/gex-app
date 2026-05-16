@@ -37,7 +37,7 @@ export default function Sidebar() {
         <button
           onClick={toggle}
           className={cn(
-            "flex items-center justify-center w-7 h-7 rounded-sm text-[var(--text-2)] hover:text-[var(--text-1)] hover:bg-white/10 transition-colors",
+            "flex items-center justify-center w-7 h-7 rounded-sm text-[var(--text-2)] hover:text-[var(--text-1)] hover:bg-[var(--surface-3)] transition-colors",
             collapsed && "mx-auto",
           )}
           title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
@@ -58,8 +58,8 @@ export default function Sidebar() {
                 "flex items-center gap-3 px-3 py-2.5 font-mono text-[11px] tracking-wide transition-colors rounded-sm",
                 collapsed && "justify-center px-0",
                 isActive
-                  ? "border-l-2 border-blue bg-blue/10 text-white"
-                  : "text-[var(--text-2)] hover:text-white hover:bg-white/8",
+                  ? "border-l-2 border-blue bg-[var(--blue-dim)] text-[var(--text-1)]"
+                  : "text-[var(--text-2)] hover:text-[var(--text-1)] hover:bg-[var(--surface-3)]",
               )
             }
           >

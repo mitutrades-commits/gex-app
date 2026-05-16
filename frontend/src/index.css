@@ -6,6 +6,12 @@
 
 @layer base {
   :root {
+    --radius: 0.5rem;
+  }
+
+  /* ---------------- DARK (default) ---------------- */
+  :root,
+  [data-theme="dark"] {
     /* shadcn semantic tokens */
     --background: 222 20% 5%;
     --foreground: 220 15% 90%;
@@ -19,15 +25,12 @@
     --accent-foreground: 220 15% 90%;
     --destructive: 0 65% 55%;
     --destructive-foreground: 220 15% 90%;
-    --border: 220 20% 14%;
     --input: 222 20% 10%;
     --ring: 210 75% 60%;
-    --radius: 0.5rem;
 
     /* Design tokens */
     --bg:          #0a0b0d;
     --surface-1:   #0f1117;
-    /* keep surface/surface-2/surface-3 for compatibility */
     --surface:     #0f1117;
     --surface-2:   #131720;
     --surface-3:   #181e2a;
@@ -45,6 +48,101 @@
     --text-1:      rgba(255,255,255,0.90);
     --text-2:      rgba(255,255,255,0.55);
     --text-3:      rgba(255,255,255,0.30);
+
+    /* Chart-specific (recharts) */
+    --chart-grid:  #1e2736;
+    --chart-axis:  #7a8aa8;
+    --chart-pos:   #2dc88a;
+    --chart-neg:   #e05252;
+    --chart-flip:  #4d8fea;
+  }
+
+  /* ---------------- LIGHT ---------------- */
+  [data-theme="light"] {
+    --background: 220 14% 89%;
+    --foreground: 222 20% 10%;
+    --card: 220 14% 94%;
+    --card-foreground: 222 20% 10%;
+    --primary: 210 75% 50%;
+    --primary-foreground: 0 0% 100%;
+    --muted: 220 12% 86%;
+    --muted-foreground: 220 12% 40%;
+    --accent: 220 12% 83%;
+    --accent-foreground: 222 20% 10%;
+    --destructive: 0 70% 50%;
+    --destructive-foreground: 0 0% 100%;
+    --input: 220 14% 94%;
+    --ring: 210 75% 50%;
+
+    --bg:          #e8eaed;
+    --surface-1:   #f0f2f5;
+    --surface:     #f0f2f5;
+    --surface-2:   #e4e7eb;
+    --surface-3:   #d8dce2;
+    --border:      rgba(0,0,0,0.10);
+    --border-soft: rgba(0,0,0,0.05);
+    --border-color: rgba(0,0,0,0.10);
+    --green:       #16a34a;
+    --red:         #dc2626;
+    --blue:        #2563eb;
+    --amber:       #d97706;
+    --green-dim:   rgba(22,163,74,0.14);
+    --red-dim:     rgba(220,38,38,0.14);
+    --blue-dim:    rgba(37,99,235,0.12);
+    --amber-dim:   rgba(217,119,6,0.14);
+    --text-1:      rgba(15,17,23,0.92);
+    --text-2:      rgba(15,17,23,0.60);
+    --text-3:      rgba(15,17,23,0.40);
+
+    --chart-grid:  #e2e8f0;
+    --chart-axis:  #64748b;
+    --chart-pos:   #16a34a;
+    --chart-neg:   #dc2626;
+    --chart-flip:  #2563eb;
+  }
+
+  /* ---------------- BLOOMBERG ---------------- */
+  [data-theme="bloomberg"] {
+    --background: 0 0% 0%;
+    --foreground: 40 100% 55%;
+    --card: 30 80% 3%;
+    --card-foreground: 40 100% 55%;
+    --primary: 40 100% 50%;
+    --primary-foreground: 0 0% 0%;
+    --muted: 30 50% 6%;
+    --muted-foreground: 40 60% 40%;
+    --accent: 30 60% 8%;
+    --accent-foreground: 40 100% 55%;
+    --destructive: 0 80% 55%;
+    --destructive-foreground: 0 0% 0%;
+    --input: 30 50% 6%;
+    --ring: 40 100% 50%;
+
+    --bg:          #000000;
+    --surface-1:   #0a0700;
+    --surface:     #0a0700;
+    --surface-2:   #14100a;
+    --surface-3:   #1f1a10;
+    --border:      rgba(255,176,0,0.18);
+    --border-soft: rgba(255,176,0,0.08);
+    --border-color: rgba(255,176,0,0.18);
+    --green:       #00d26a;
+    --red:         #ff4d4d;
+    --blue:        #ffb000;
+    --amber:       #ffb000;
+    --green-dim:   rgba(0,210,106,0.14);
+    --red-dim:     rgba(255,77,77,0.14);
+    --blue-dim:    rgba(255,176,0,0.14);
+    --amber-dim:   rgba(255,176,0,0.14);
+    --text-1:      rgba(255,176,0,0.95);
+    --text-2:      rgba(255,176,0,0.60);
+    --text-3:      rgba(255,176,0,0.32);
+
+    --chart-grid:  rgba(255,176,0,0.18);
+    --chart-axis:  rgba(255,176,0,0.60);
+    --chart-pos:   #00d26a;
+    --chart-neg:   #ff4d4d;
+    --chart-flip:  #ffb000;
   }
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -68,8 +166,8 @@
 }
 
 @layer utilities {
-  .gex-positive { color: #2dc88a; }
-  .gex-negative { color: #e05252; }
+  .gex-positive { color: var(--chart-pos); }
+  .gex-negative { color: var(--chart-neg); }
 }
 
 @keyframes fadeIn {

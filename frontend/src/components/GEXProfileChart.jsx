@@ -3,6 +3,7 @@ import {
   ReferenceLine, Cell, ResponsiveContainer,
 } from "recharts"
 import { fmtGex, fmtStrike } from "@/lib/format"
+import { useThemeColors } from "@/hooks/useTheme"
 
 const CustomTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null
@@ -19,6 +20,7 @@ const CustomTooltip = ({ active, payload, label }) => {
 }
 
 export default function GEXProfileChart({ instrument }) {
+  const c = useThemeColors()
   if (!instrument) return null
   const { symbol, strikes, spot } = instrument
 
@@ -39,25 +41,25 @@ export default function GEXProfileChart({ instrument }) {
       </p>
       <ResponsiveContainer width="100%" height={220}>
         <BarChart data={data} margin={{ top: 4, right: 8, left: 8, bottom: 0 }} barGap={1} barSize={6}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#1e2736" vertical={false} />
+          <CartesianGrid strokeDasharray="3 3" stroke={c.grid} vertical={false} />
           <XAxis
             dataKey="strike"
-            tick={{ fontFamily: "IBM Plex Mono", fontSize: 8, fill: "#7a8aa8" }}
+            tick={{ fontFamily: "IBM Plex Mono", fontSize: 8, fill: c.axis }}
             axisLine={false}
             tickLine={false}
             interval="preserveStartEnd"
           />
           <YAxis
             tickFormatter={v => fmtGex(v)}
-            tick={{ fontFamily: "IBM Plex Mono", fontSize: 8, fill: "#7a8aa8" }}
+            tick={{ fontFamily: "IBM Plex Mono", fontSize: 8, fill: c.axis }}
             axisLine={false}
             tickLine={false}
             width={52}
           />
           <Tooltip content={<CustomTooltip />} />
-          <ReferenceLine y={0} stroke="#1e2736" />
-          <Bar dataKey="call_gex" name="Call GEX" fill="#2dc88a" opacity={0.7} radius={[2,2,0,0]} />
-          <Bar dataKey="put_gex" name="Put GEX" fill="#e05252" opacity={0.7} radius={[0,0,2,2]} />
+          <ReferenceLine y={0} stroke={c.grid} />
+          <Bar dataKey="call_gex" name="Call GEX" fill={c.pos} opacity={0.7} radius={[2,2,0,0]} />
+          <Bar dataKey="put_gex" name="Put GEX" fill={c.neg} opacity={0.7} radius={[0,0,2,2]} />
         </BarChart>
       </ResponsiveContainer>
     </div>
