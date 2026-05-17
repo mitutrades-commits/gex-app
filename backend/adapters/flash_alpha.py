@@ -18,8 +18,10 @@ class FlashAlphaAdapter:
 
     async def fetch(self, symbol: str, expiry: str | None = None) -> InstrumentGEX:
         sym = symbol.upper()
+        print("gomes",expiry)
         # Route to /exposure/gex/{symbol}?expiration={expiry} for ISO date expiries
         if expiry and expiry != "0dte":
+            print("exposre")
             params = {"expiration": expiry}
             resp = await self._client.get(f"/exposure/gex/{sym}", params=params)
         else:
