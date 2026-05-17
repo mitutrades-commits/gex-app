@@ -8,7 +8,6 @@ const TAG_COLOR = {
   call: "#22c55e",
   flip: "#3b82f6",
   put:  "#ef4444",
-  pin:  "#f59e0b",
 };
 
 const DEFAULT_HEIGHT = 420;
@@ -16,22 +15,13 @@ const MIN_HEIGHT = 120;
 const MAX_HEIGHT = 700;
 
 export default function InstrumentColumn({ inst, compact = false, resizable = false }) {
-  const { symbol, spot, flip, net_gex, strikes } = inst;
+  const { symbol, spot, flip, net_gex, strikes, call_wall, put_wall } = inst;
 
   const isPos = spot >= flip;
 
-  const aboveSpot = strikes.filter((s) => s.strike > spot);
-  const belowSpot = strikes.filter((s) => s.strike < spot);
+  const callWallStrike = call_wall?.strike;
+  const putWallStrike  = put_wall?.strike;
 
-  const callWallS = (aboveSpot.length ? aboveSpot : strikes).reduce((a, b) =>
-    b.call_gex > a.call_gex ? b : a,
-  );
-  const putWallS = (belowSpot.length ? belowSpot : strikes).reduce((a, b) =>
-    Math.abs(b.put_gex) > Math.abs(a.put_gex) ? b : a,
-  );
-  const pinS = strikes.reduce((a, b) =>
-    Math.abs(b.net_gex) > Math.abs(a.net_gex) ? b : a,
-  );
 
   const maxNet  = Math.max(...strikes.map((s) => Math.abs(s.net_gex)));
   const maxCall = Math.max(...strikes.map((s) => s.call_gex));
@@ -116,10 +106,9 @@ export default function InstrumentColumn({ inst, compact = false, resizable = fa
 
   function tagsForStrike(d) {
     const tags = [];
-    if (d.strike === callWallS.strike) tags.push({ label: "Call Wall", color: TAG_COLOR.call });
+    if (d.strike === callWallStrike)   tags.push({ label: "Call Wall", color: TAG_COLOR.call });
     if (d.is_flip)                     tags.push({ label: "γ Flip",    color: TAG_COLOR.flip });
-    if (d.strike === pinS.strike)      tags.push({ label: "Pin",       color: TAG_COLOR.pin  });
-    if (d.strike === putWallS.strike)  tags.push({ label: "Put Wall",  color: TAG_COLOR.put  });
+    if (d.strike === putWallStrike)    tags.push({ label: "Put Wall",  color: TAG_COLOR.put  });
     return tags;
   }
 
