@@ -35,7 +35,7 @@ async def _snapshot_loop(app: FastAPI):
             syms = await adapter.available_symbols()
             for sym in syms:
                 try:
-                    data = await adapter.fetch(sym)
+                    data = await adapter.fetch(sym, expiry="0dte")
                     snapshots.record(data)
                 except Exception:
                     pass
