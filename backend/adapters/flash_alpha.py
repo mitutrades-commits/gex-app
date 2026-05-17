@@ -23,18 +23,22 @@ class FlashAlphaAdapter:
             params = {"expiration": expiry}
             resp = await self._client.get(f"/exposure/gex/{sym}", params=params)
         else:
-            if expiry:
+            if expiry and expiry == "0dte":
                 # lets check is weekend, if so pass next monday
                 today = datetime.today().date().isoformat() if datetime.today().date().isoweekday() < 6 else get_next_monday().isoformat()
                 #params = {"expiry": (datetime.today().date().isoformat())}
                 params = {"expiry": today}
-            resp = await self._client.get(f"/flow/gex/{sym}", params=params)
+            else:
+                params = {"expiry": None}
+        resp = await self._client.get(f"/flow/gex/{sym}", params=params)
         resp.raise_for_status()
         data = resp.json()
 
         spot = data["underlying_price"]
         # /flow returns live_gamma_flip; /exposure returns gamma_flip
         flip = data.get("live_gamma_flip") or data["gamma_flip"]
+        # round flip to 1 decimal for option
+        flip = int(flip * 10) / 10
         net_gex = data.get("live_net_gex") or data["net_gex"]
         regime = (data.get("live_net_gex_label") or data["net_gex_label"]).capitalize()
 
@@ -76,7 +80,7 @@ class FlashAlphaAdapter:
 
     async def available_symbols(self) -> list[str]:
         # Flash Alpha supports any symbol; return common defaults
-        return ["SPX", "SPY", "QQQ", "TSLA", "NVDA", "AAPL", "AMZN", "META"]
+        return ["SPX", "SPY", "QQQ"]
 
     async def aclose(self):
         await self._client.aclose()

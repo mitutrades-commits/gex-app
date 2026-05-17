@@ -7,25 +7,29 @@ import { cn } from "@/lib/utils";
 const TAG_COLOR = {
   call: "#22c55e",
   flip: "#3b82f6",
-  put:  "#ef4444",
+  put: "#ef4444",
 };
 
 const DEFAULT_HEIGHT = 420;
 const MIN_HEIGHT = 120;
 const MAX_HEIGHT = 700;
 
-export default function InstrumentColumn({ inst, compact = false, resizable = false }) {
+export default function InstrumentColumn({
+  inst,
+  compact = false,
+  resizable = false,
+}) {
   const { symbol, spot, flip, net_gex, strikes, call_wall, put_wall } = inst;
 
   const isPos = spot >= flip;
 
   const callWallStrike = call_wall?.strike;
-  const putWallStrike  = put_wall?.strike;
+  const putWallStrike = put_wall?.strike;
+  const flipStrike = flip;
 
-
-  const maxNet  = Math.max(...strikes.map((s) => Math.abs(s.net_gex)));
+  const maxNet = Math.max(...strikes.map((s) => Math.abs(s.net_gex)));
   const maxCall = Math.max(...strikes.map((s) => s.call_gex));
-  const maxPut  = Math.max(...strikes.map((s) => Math.abs(s.put_gex)));
+  const maxPut = Math.max(...strikes.map((s) => Math.abs(s.put_gex)));
 
   const spotRef = useRef(null);
 
@@ -47,7 +51,9 @@ export default function InstrumentColumn({ inst, compact = false, resizable = fa
   });
 
   const ladderHeightRef = useRef(ladderHeight);
-  useEffect(() => { ladderHeightRef.current = ladderHeight; }, [ladderHeight]);
+  useEffect(() => {
+    ladderHeightRef.current = ladderHeight;
+  }, [ladderHeight]);
 
   const dragState = useRef(null);
 
@@ -56,17 +62,26 @@ export default function InstrumentColumn({ inst, compact = false, resizable = fa
       if (!resizable || compact) return;
       e.preventDefault();
       document.body.style.userSelect = "none";
-      dragState.current = { startY: e.clientY, startHeight: ladderHeightRef.current };
+      dragState.current = {
+        startY: e.clientY,
+        startHeight: ladderHeightRef.current,
+      };
 
       function onMouseMove(ev) {
         const dy = ev.clientY - dragState.current.startY;
-        const next = Math.min(MAX_HEIGHT, Math.max(MIN_HEIGHT, dragState.current.startHeight + dy));
+        const next = Math.min(
+          MAX_HEIGHT,
+          Math.max(MIN_HEIGHT, dragState.current.startHeight + dy),
+        );
         setLadderHeight(next);
       }
 
       function onMouseUp(ev) {
         const dy = ev.clientY - dragState.current.startY;
-        const next = Math.min(MAX_HEIGHT, Math.max(MIN_HEIGHT, dragState.current.startHeight + dy));
+        const next = Math.min(
+          MAX_HEIGHT,
+          Math.max(MIN_HEIGHT, dragState.current.startHeight + dy),
+        );
         localStorage.setItem(storageKey, String(next));
         document.body.style.userSelect = "";
         document.removeEventListener("mousemove", onMouseMove);
@@ -86,7 +101,10 @@ export default function InstrumentColumn({ inst, compact = false, resizable = fa
   useEffect(() => {
     return () => {
       if (dragState.current) {
-        document.removeEventListener("mousemove", dragState.current._onMouseMove);
+        document.removeEventListener(
+          "mousemove",
+          dragState.current._onMouseMove,
+        );
         document.removeEventListener("mouseup", dragState.current._onMouseUp);
       }
     };
@@ -106,22 +124,40 @@ export default function InstrumentColumn({ inst, compact = false, resizable = fa
 
   function tagsForStrike(d) {
     const tags = [];
-    if (d.strike === callWallStrike)   tags.push({ label: "Call Wall", color: TAG_COLOR.call });
-    if (d.is_flip)                     tags.push({ label: "γ Flip",    color: TAG_COLOR.flip });
-    if (d.strike === putWallStrike)    tags.push({ label: "Put Wall",  color: TAG_COLOR.put  });
+    if (d.strike === callWallStrike)
+      tags.push({ label: "Call Wall", color: TAG_COLOR.call });
+    if (d.strike === flipStrike)
+      tags.push({ label: "γ Flip", color: TAG_COLOR.flip });
+    if (d.strike === putWallStrike)
+      tags.push({ label: "Put Wall", color: TAG_COLOR.put });
     return tags;
   }
 
   return (
-    <div className={cn("flex flex-col animate-[fadeIn_0.35s_ease_both]", compact ? "gap-2" : "gap-3")}>
+    <div
+      className={cn(
+        "flex flex-col animate-[fadeIn_0.35s_ease_both]",
+        compact ? "gap-2" : "gap-3",
+      )}
+    >
       {/* Ladder card */}
       <div className="rounded-xl border border-[var(--border)] bg-[var(--surface)] overflow-hidden flex flex-col">
         {/* Frozen header rows */}
         <div className="flex-none">
           {/* Header */}
-          <div className={cn("flex items-center justify-between bg-[var(--surface-2)] border-b border-[var(--border)]", compact ? "px-3 py-1.5" : "px-4 py-2.5")}>
+          <div
+            className={cn(
+              "flex items-center justify-between bg-[var(--surface-2)] border-b border-[var(--border)]",
+              compact ? "px-3 py-1.5" : "px-4 py-2.5",
+            )}
+          >
             <div className="flex items-center gap-2">
-              <span className={cn("font-mono font-semibold tracking-widest text-text-1", compact ? "text-xs" : "text-sm")}>
+              <span
+                className={cn(
+                  "font-mono font-semibold tracking-widest text-text-1",
+                  compact ? "text-xs" : "text-sm",
+                )}
+              >
                 {symbol}
               </span>
               <Badge variant={isPos ? "positive" : "negative"}>
@@ -138,7 +174,12 @@ export default function InstrumentColumn({ inst, compact = false, resizable = fa
             </span>
             <span className="font-mono text-[8px] text-text-2">
               Net:{" "}
-              <span className={cn("font-semibold", isPos ? "text-green" : "text-red")}>
+              <span
+                className={cn(
+                  "font-semibold",
+                  isPos ? "text-green" : "text-red",
+                )}
+              >
                 {fmtGex(net_gex)}
               </span>
             </span>
@@ -146,8 +187,12 @@ export default function InstrumentColumn({ inst, compact = false, resizable = fa
 
           {/* Column headers */}
           <div className="grid grid-cols-[minmax(80px,auto)_1fr_48px] px-3 py-1.5 bg-[var(--surface-2)] border-b border-[var(--border)]">
-            <span className="font-mono text-[8px] uppercase tracking-widest text-text-2">Strike</span>
-            <span className="font-mono text-[8px] uppercase tracking-widest text-text-2 text-center">← Put · Net GEX · Call →</span>
+            <span className="font-mono text-[8px] uppercase tracking-widest text-text-2">
+              Strike
+            </span>
+            <span className="font-mono text-[8px] uppercase tracking-widest text-text-2 text-center">
+              ← Put · Net GEX · Call →
+            </span>
             <button
               onClick={cycleNetGexSort}
               className="font-mono text-[8px] uppercase tracking-widest text-right flex items-center justify-end gap-0.5 cursor-pointer select-none"
@@ -165,7 +210,10 @@ export default function InstrumentColumn({ inst, compact = false, resizable = fa
         {/* Scrollable strike rows */}
         <div
           className="overflow-y-auto"
-          style={{ height: compact ? 240 : ladderHeight, minHeight: compact ? 240 : MIN_HEIGHT }}
+          style={{
+            height: compact ? 240 : ladderHeight,
+            minHeight: compact ? 240 : MIN_HEIGHT,
+          }}
         >
           {sortedStrikes.map((d) => (
             <Fragment key={d.strike}>
@@ -179,7 +227,10 @@ export default function InstrumentColumn({ inst, compact = false, resizable = fa
                 tags={tagsForStrike(d)}
               />
               {d.is_spot && (
-                <div ref={spotRef} className="relative h-px z-10 overflow-visible">
+                <div
+                  ref={spotRef}
+                  className="relative h-px z-10 overflow-visible"
+                >
                   <div className="absolute inset-0 bg-amber opacity-60" />
                   <div className="absolute right-3 -top-[9px] font-mono text-[8px] text-amber bg-[var(--surface)] border border-amber/50 rounded px-1.5 py-px whitespace-nowrap tracking-wide">
                     SPOT {fmtSpot(symbol, spot)}
