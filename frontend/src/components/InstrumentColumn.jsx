@@ -172,8 +172,8 @@ export default function InstrumentColumn({
               >
                 {symbol}
               </span>
-              <Badge variant={isPos ? "positive" : "negative"}>
-                {isPos ? "+GEX" : "−GEX"}
+              <Badge variant={isPos == "positive" ? "positive" : "negative"}>
+                {isPos == "positive" ? "+GEX" : "−GEX"}
               </Badge>
             </div>
             <Badge variant="amber">{fmtSpot(symbol, spot)}</Badge>
@@ -189,7 +189,7 @@ export default function InstrumentColumn({
               <span
                 className={cn(
                   "font-semibold",
-                  isPos ? "text-green" : "text-red",
+                  isPos == "positive" ? "text-green" : "text-red",
                 )}
               >
                 {fmtGex(net_gex)}{" "}
