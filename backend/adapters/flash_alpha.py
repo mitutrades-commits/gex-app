@@ -36,6 +36,7 @@ class FlashAlphaAdapter:
                 params = {"expiry": today}
             else:
                 params = {"expiry": None}
+               
             resp = await self._client.get(f"/flow/gex/{sym}", params=params)
             summaryResp = await self._client.get(f"/flow/summary/{sym}", params=params)
             if sym in ["SPX","SPY","QQQ"]:
