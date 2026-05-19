@@ -6,7 +6,8 @@ Built with **FastAPI** (Python) + **React + Vite + Tailwind CSS**.
 
 ---
 
-<img width="1095" height="606" alt="B3_mode" src="https://github.com/user-attachments/assets/afe38bc8-ba12-4b0f-b455-3d8d3ed178e7" />
+<img width="1054" height="853" alt="image" src="https://github.com/user-attachments/assets/6cedb173-8c2d-4d61-abc1-6f55eec5df4a" />
+
 
 
 ## Features
