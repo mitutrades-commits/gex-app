@@ -3,6 +3,7 @@ import InstrumentColumn from "@/components/InstrumentColumn"
 import LoadingSkeleton from "@/components/LoadingSkeleton"
 import IntradayChart from "@/components/IntradayChart"
 import GEXHeatmap from "@/components/GEXHeatmap"
+import LayoutToggle from "@/components/LayoutToggle"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 
@@ -46,25 +47,7 @@ export default function B3Mode({ gexData }) {
     <div className="p-4 overflow-y-auto h-full">
       {/* Layout toggle */}
       <div className="flex justify-end mb-4">
-        <div className="flex items-center gap-px rounded-lg border border-[var(--border)] bg-[var(--surface-2)] p-0.5">
-          {[
-            { id: "levels", label: "Levels" },
-            { id: "heatmap", label: "Heatmap" },
-          ].map(({ id, label }) => (
-            <button
-              key={id}
-              onClick={() => switchLayout(id)}
-              className={cn(
-                "font-mono text-[9px] uppercase tracking-widest px-3 py-1 rounded-md transition-colors",
-                layout === id
-                  ? "bg-[var(--surface)] text-[var(--text-1)] shadow-sm"
-                  : "text-[var(--text-3)] hover:text-[var(--text-2)]"
-              )}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
+        <LayoutToggle layout={layout} onChange={switchLayout} />
       </div>
 
       {/* Main content */}

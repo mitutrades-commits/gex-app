@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { fetchGEXBySymbol } from "@/api";
 import InstrumentColumn from "@/components/InstrumentColumn";
 import { HeatmapRows } from "@/components/GEXHeatmap";
+import LayoutToggle from "@/components/LayoutToggle";
 import { useWatchlist } from "@/hooks/useWatchlist";
 import { cn } from "@/lib/utils";
 import { X, Pin, PinOff, RefreshCw } from "lucide-react";
@@ -200,25 +201,7 @@ export default function ExpiryMode({ refreshKey = 0 }) {
           )}
 
           {/* Layout toggle */}
-          <div className="flex items-center gap-px rounded-lg border border-[var(--border)] bg-[var(--surface-2)] p-0.5 ml-auto">
-            {[
-              { id: "levels", label: "Levels" },
-              { id: "heatmap", label: "Heatmap" },
-            ].map(({ id, label }) => (
-              <button
-                key={id}
-                onClick={() => switchLayout(id)}
-                className={cn(
-                  "font-mono text-[9px] uppercase tracking-widest px-3 py-1 rounded-md transition-colors",
-                  layout === id
-                    ? "bg-[var(--surface)] text-[var(--text-1)] shadow-sm"
-                    : "text-[var(--text-3)] hover:text-[var(--text-2)]"
-                )}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
+          <LayoutToggle layout={layout} onChange={switchLayout} />
         </div>
       </div>
 
