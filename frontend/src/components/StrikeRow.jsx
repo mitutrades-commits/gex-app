@@ -28,8 +28,8 @@ export default function StrikeRow({ d, symbol, maxNet, maxCall, maxPut, compact 
         {tags.map((t) => (
           <span
             key={t.label}
-            className="font-mono text-[7px] uppercase tracking-widest px-1.5 py-px rounded-sm border whitespace-nowrap"
-            style={{ color: t.color, borderColor: `${t.color}40`, background: `${t.color}12` }}
+            className="font-mono text-[8px] font-bold uppercase tracking-widest px-2 py-0.5 rounded whitespace-nowrap shadow-sm"
+            style={{ color: "#fff", background: t.color, border: `1px solid ${t.color}` }}
           >
             {t.label}
           </span>

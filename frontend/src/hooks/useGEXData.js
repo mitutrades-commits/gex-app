@@ -5,12 +5,14 @@ const REFRESH_INTERVAL = 60
 
 export function useGEXData() {
   const [data, setData] = useState(null);
+  const [prevData, setPrevData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [elapsed, setElapsed] = useState(0);
   const [refreshKey, setRefreshKey] = useState(0);
   const intervalRef = useRef(null);
   const tickRef = useRef(null);
+  const dataRef = useRef(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -19,6 +21,8 @@ export function useGEXData() {
     setRefreshKey((k) => k + 1);
     try {
       const json = await fetchAllGEX();
+      setPrevData(dataRef.current);
+      dataRef.current = json;
       setData(json);
     } catch (e) {
       setError(e.message);
@@ -57,6 +61,7 @@ export function useGEXData() {
 
   return {
     data,
+    prevData,
     loading,
     error,
     elapsed,

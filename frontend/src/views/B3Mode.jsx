@@ -2,14 +2,26 @@ import { useState } from "react"
 import InstrumentColumn from "@/components/InstrumentColumn"
 import LoadingSkeleton from "@/components/LoadingSkeleton"
 import IntradayChart from "@/components/IntradayChart"
+import GEXHeatmap from "@/components/GEXHeatmap"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 
-export default function B3Mode({ gexData }) {
-  const { data, loading, error } = gexData ?? {}
-  const [activeSymbol, setActiveSymbol] = useState(null)
+const LAYOUT_KEY = "gex.b3.layout"
 
-  const instruments = data?.instruments ?? []
+export default function B3Mode({ gexData }) {
+  const { data, prevData, loading, error } = gexData ?? {}
+  const [activeSymbol, setActiveSymbol] = useState(null)
+  const [layout, setLayout] = useState(() => localStorage.getItem(LAYOUT_KEY) ?? "levels")
+
+  function switchLayout(next) {
+    setLayout(next)
+    localStorage.setItem(LAYOUT_KEY, next)
+  }
+
+  const B3_ORDER = ["SPY", "SPX", "QQQ"]
+  const instruments = [...(data?.instruments ?? [])].sort(
+    (a, b) => B3_ORDER.indexOf(a.symbol) - B3_ORDER.indexOf(b.symbol)
+  )
   const effectiveSymbol = activeSymbol ?? instruments[0]?.symbol
   const activeInst = instruments.find(i => i.symbol === effectiveSymbol)
 
@@ -32,14 +44,41 @@ export default function B3Mode({ gexData }) {
 
   return (
     <div className="p-4 overflow-y-auto h-full">
-      {/* 3-column grid — no horizontal scroll */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 min-w-0">
-        {instruments.map(inst => (
-          <div key={inst.symbol} className="min-w-0">
-            <InstrumentColumn inst={inst} resizable />
-          </div>
-        ))}
+      {/* Layout toggle */}
+      <div className="flex justify-end mb-4">
+        <div className="flex items-center gap-px rounded-lg border border-[var(--border)] bg-[var(--surface-2)] p-0.5">
+          {[
+            { id: "levels", label: "Levels" },
+            { id: "heatmap", label: "Heatmap" },
+          ].map(({ id, label }) => (
+            <button
+              key={id}
+              onClick={() => switchLayout(id)}
+              className={cn(
+                "font-mono text-[9px] uppercase tracking-widest px-3 py-1 rounded-md transition-colors",
+                layout === id
+                  ? "bg-[var(--surface)] text-[var(--text-1)] shadow-sm"
+                  : "text-[var(--text-3)] hover:text-[var(--text-2)]"
+              )}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
       </div>
+
+      {/* Main content */}
+      {layout === "heatmap" ? (
+        <GEXHeatmap instruments={instruments} prevInstruments={prevData?.instruments ?? []} />
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 min-w-0">
+          {instruments.map(inst => (
+            <div key={inst.symbol} className="min-w-0">
+              <InstrumentColumn inst={inst} resizable />
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* Intraday chart section */}
       {activeInst && (

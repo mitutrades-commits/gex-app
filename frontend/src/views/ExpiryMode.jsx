@@ -1,12 +1,15 @@
 import { useState, useEffect } from "react";
 import { fetchGEXBySymbol } from "@/api";
 import InstrumentColumn from "@/components/InstrumentColumn";
+import { HeatmapRows } from "@/components/GEXHeatmap";
 import { useWatchlist } from "@/hooks/useWatchlist";
 import { cn } from "@/lib/utils";
 import { X, Pin, PinOff, RefreshCw } from "lucide-react";
 
+const LAYOUT_KEY = "gex.expiry.layout";
+
 // ── Single expiry panel ───────────────────────────────────────────────────────
-function ExpiryPanel({ id, symbol, date, pinned, onClose, onTogglePin, refreshKey }) {
+function ExpiryPanel({ id, symbol, date, pinned, onClose, onTogglePin, refreshKey, layout }) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -65,7 +68,7 @@ function ExpiryPanel({ id, symbol, date, pinned, onClose, onTogglePin, refreshKe
       </div>
 
       {/* Panel body */}
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto flex flex-col">
         {error && (
           <div className="p-3">
             <span className="font-mono text-[10px] text-[var(--red)]">{error}</span>
@@ -76,7 +79,10 @@ function ExpiryPanel({ id, symbol, date, pinned, onClose, onTogglePin, refreshKe
             <span className="font-mono text-[10px] text-[var(--text-3)]">loading…</span>
           </div>
         )}
-        {data && <InstrumentColumn inst={data} resizable />}
+        {data && layout === "heatmap"
+          ? <HeatmapRows inst={data} date={date} />
+          : data && <InstrumentColumn inst={data} resizable />
+        }
       </div>
     </div>
   );
@@ -87,6 +93,12 @@ export default function ExpiryMode({ refreshKey = 0 }) {
   const { watchlist } = useWatchlist();
   const [symbol, setSymbol] = useState("SPX");
   const [date, setDate] = useState("");
+  const [layout, setLayout] = useState(() => localStorage.getItem(LAYOUT_KEY) ?? "levels");
+
+  function switchLayout(next) {
+    setLayout(next);
+    localStorage.setItem(LAYOUT_KEY, next);
+  }
   const [panels, setPanels] = useState(() => {
     try {
       const saved = localStorage.getItem("expiry-panels");
@@ -181,11 +193,32 @@ export default function ExpiryMode({ refreshKey = 0 }) {
           {panels.length > 0 && (
             <button
               onClick={() => setPanels(prev => prev.filter(p => p.pinned))}
-              className="font-mono text-[10px] px-2 py-1 rounded border border-[var(--border)] text-[var(--text-3)] hover:text-[var(--red)] transition-colors ml-auto"
+              className="font-mono text-[10px] px-2 py-1 rounded border border-[var(--border)] text-[var(--text-3)] hover:text-[var(--red)] transition-colors"
             >
               Close unpinned
             </button>
           )}
+
+          {/* Layout toggle */}
+          <div className="flex items-center gap-px rounded-lg border border-[var(--border)] bg-[var(--surface-2)] p-0.5 ml-auto">
+            {[
+              { id: "levels", label: "Levels" },
+              { id: "heatmap", label: "Heatmap" },
+            ].map(({ id, label }) => (
+              <button
+                key={id}
+                onClick={() => switchLayout(id)}
+                className={cn(
+                  "font-mono text-[9px] uppercase tracking-widest px-3 py-1 rounded-md transition-colors",
+                  layout === id
+                    ? "bg-[var(--surface)] text-[var(--text-1)] shadow-sm"
+                    : "text-[var(--text-3)] hover:text-[var(--text-2)]"
+                )}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -204,6 +237,7 @@ export default function ExpiryMode({ refreshKey = 0 }) {
                 key={p.id}
                 {...p}
                 refreshKey={refreshKey}
+                layout={layout}
                 onClose={handleClose}
                 onTogglePin={handleTogglePin}
               />

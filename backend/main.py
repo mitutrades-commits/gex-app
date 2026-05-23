@@ -23,6 +23,12 @@ def _build_adapter():
     if settings.gex_adapter == "flash_alpha":
         from backend.adapters.flash_alpha import FlashAlphaAdapter
         return FlashAlphaAdapter(), "flash_alpha"
+    if settings.gex_adapter == "polygon":
+        from backend.adapters.polygon import PolygonAdapter
+        return PolygonAdapter(), "polygon"
+    if settings.gex_adapter == "tradier":
+        from backend.adapters.tradier import TradierAdapter
+        return TradierAdapter(), "tradier"
     from backend.adapters.seed import SeedAdapter
     return SeedAdapter(), "seed"
 

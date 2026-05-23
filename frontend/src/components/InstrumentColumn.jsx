@@ -138,7 +138,7 @@ export default function InstrumentColumn({
     const tags = [];
     if (d.strike === callWallStrike)
       tags.push({ label: "Call Wall", color: TAG_COLOR.call });
-    if (d.strike === flipStrike)
+    if (d.is_flip)
       tags.push({ label: "γ Flip", color: TAG_COLOR.flip });
     if (d.strike === putWallStrike)
       tags.push({ label: "Put Wall", color: TAG_COLOR.put });
@@ -269,7 +269,7 @@ export default function InstrumentColumn({
                   className="relative h-px z-10 overflow-visible"
                 >
                   <div className="absolute inset-0 bg-amber opacity-60" />
-                  <div className="absolute right-3 -top-[9px] font-mono text-[8px] text-amber bg-[var(--surface)] border border-amber/50 rounded px-1.5 py-px whitespace-nowrap tracking-wide">
+                  <div className="absolute right-3 -top-[9px] font-mono text-[8px] font-bold text-white bg-amber rounded px-2 py-0.5 whitespace-nowrap tracking-widest uppercase shadow-sm">
                     SPOT {fmtSpot(symbol, spot)}
                   </div>
                 </div>

@@ -3,9 +3,12 @@ from typing import Optional
 
 
 class Settings(BaseSettings):
-    gex_adapter: str = "seed"  # "seed" | "flash_alpha"
+    gex_adapter: str = "seed"  # "seed" | "flash_alpha" | "polygon" | "tradier"
     flash_alpha_base_url: str = "https://lab.flashalpha.com/v1"
     flash_alpha_api_key: Optional[str] = None
+    polygon_api_key: Optional[str] = None
+    tradier_api_key: Optional[str] = None
+    tradier_base_url: str = "https://api.tradier.com"
     cache_ttl_seconds: int = 300
     snapshot_interval_seconds: int = 60
     snapshot_max_per_symbol: int = 390  # full trading day at 1-min intervals
