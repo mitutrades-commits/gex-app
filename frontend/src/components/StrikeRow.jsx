@@ -4,10 +4,12 @@ import { cn } from "@/lib/utils"
 const MAX_W = 44
 
 export default function StrikeRow({ d, symbol, maxNet, maxCall, maxPut, compact = false, tags = [] }) {
-  const isPos = d.net_gex >= 0
-  const netW  = (Math.abs(d.net_gex) / maxNet) * MAX_W
-  const callW = (d.call_gex / maxCall) * MAX_W
-  const putW  = (Math.abs(d.put_gex) / maxPut) * MAX_W
+  const isPos    = d.net_gex >= 0
+  const netW     = (Math.abs(d.net_gex) / maxNet) * MAX_W
+  // Use the same denominator for both ghost bars so their lengths are directly comparable
+  const maxGhost = Math.max(maxCall, maxPut)
+  const callW    = (d.call_gex / maxGhost) * MAX_W
+  const putW     = (Math.abs(d.put_gex) / maxGhost) * MAX_W
 
   return (
     <div className={cn(
