@@ -31,13 +31,14 @@ def _filter_strikes(data: InstrumentGEX, n: int) -> InstrumentGEX:
 async def get_all_gex(
     request: Request,
     strikes: int = Query(default=50, ge=10, le=200, description="Strikes around spot"),
+    expiry: Optional[str] = Query(default=None, description="'0dte' or YYYY-MM-DD; omit for all expiries"),
 ):
     adapter = request.app.state.adapter
     symbols = await adapter.available_symbols()
     instruments = []
     for sym in symbols[:3]:  # cap at 3 for the main grid
         try:
-            data = await _fetch_cached(request, sym, expiry="0dte")
+            data = await _fetch_cached(request, sym, expiry=expiry)
             instruments.append(_filter_strikes(data, strikes))
         except Exception as e:
             raise HTTPException(status_code=502, detail=f"Upstream error: {e}")

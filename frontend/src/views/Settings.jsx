@@ -34,7 +34,7 @@ function ThemePicker() {
 }
 
 export default function Settings() {
-  const { data } = useGEXData()
+  const { data, REFRESH_INTERVAL } = useGEXData()
   const source = data?.source ?? data?.adapter ?? "—"
 
   return (
@@ -52,7 +52,7 @@ export default function Settings() {
             System Info
           </h2>
           <InfoCard label="Data Source" value={source} accent="bg-blue" />
-          <InfoCard label="Refresh Interval" value="30s" accent="bg-green" />
+          <InfoCard label="Refresh Interval" value={`${REFRESH_INTERVAL}s`} accent="bg-green" />
           <InfoCard label="Version" value="GEX Dashboard v2.0" accent="bg-amber" />
         </section>
       </div>

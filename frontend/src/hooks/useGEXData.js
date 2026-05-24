@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { fetchAllGEX } from "@/api";
 
-const REFRESH_INTERVAL = 60
+const REFRESH_INTERVAL = 5
 
-export function useGEXData() {
+export function useGEXData(expiry = null) {
   const [data, setData] = useState(null);
   const [prevData, setPrevData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -20,7 +20,7 @@ export function useGEXData() {
     setElapsed(0);
     setRefreshKey((k) => k + 1);
     try {
-      const json = await fetchAllGEX();
+      const json = await fetchAllGEX(expiry);
       setPrevData(dataRef.current);
       dataRef.current = json;
       setData(json);
@@ -29,7 +29,7 @@ export function useGEXData() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [expiry]);
 
   useEffect(() => {
     load();

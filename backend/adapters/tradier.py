@@ -1,3 +1,4 @@
+import asyncio
 import httpx
 from datetime import datetime, timezone, date, timedelta
 from backend.models import InstrumentGEX, Strike, KeyLevel
@@ -16,27 +17,44 @@ class TradierAdapter:
 
     async def fetch(self, symbol: str, expiry: str | None = None) -> InstrumentGEX:
         sym = symbol.upper()
-
-        expiry_date = await self._resolve_expiry(sym, expiry)
         spot = await self._fetch_spot(sym)
-        options = await self._fetch_chain(sym, expiry_date)
-        if not options:
-            raise ValueError(f"No options data for {sym} exp={expiry_date}")
 
-        strike_map: dict[float, dict] = {}
-        for opt in options:
-            k = opt.get("strike")
-            ct = (opt.get("option_type") or "").lower()
-            if k is None or ct not in ("call", "put"):
-                continue
-            k = float(k)
-            if k not in strike_map:
-                strike_map[k] = {"call": None, "put": None}
-            strike_map[k][ct] = opt
-
-        strikes_data = _build_strikes(strike_map, spot)
-        if not strikes_data:
-            raise ValueError(f"No strike data computed for {sym}")
+        if expiry is None:
+            # Aggregate GEX across all available expirations
+            strike_agg = await self._aggregate_all_expiries(sym, spot)
+            if not strike_agg:
+                raise ValueError(f"No options data for {sym} (all expiries)")
+            strikes_data = [
+                {
+                    "strike": k,
+                    "call_gex": v["call_gex"],
+                    "put_gex": v["put_gex"],
+                    "net_gex": v["call_gex"] + v["put_gex"],
+                    "call_oi": v["call_oi"],
+                    "put_oi": v["put_oi"],
+                    "call_volume": v["call_vol"],
+                    "put_volume": v["put_vol"],
+                }
+                for k, v in sorted(strike_agg.items())
+            ]
+        else:
+            expiry_date = await self._resolve_expiry(sym, expiry)
+            options = await self._fetch_chain(sym, expiry_date)
+            if not options:
+                raise ValueError(f"No options data for {sym} exp={expiry_date}")
+            strike_map: dict[float, dict] = {}
+            for opt in options:
+                k = opt.get("strike")
+                ct = (opt.get("option_type") or "").lower()
+                if k is None or ct not in ("call", "put"):
+                    continue
+                k = float(k)
+                if k not in strike_map:
+                    strike_map[k] = {"call": None, "put": None}
+                strike_map[k][ct] = opt
+            strikes_data = _build_strikes(strike_map, spot)
+            if not strikes_data:
+                raise ValueError(f"No strike data computed for {sym}")
 
         total_net_gex = sum(s["net_gex"] for s in strikes_data)
         regime = "Positive" if total_net_gex >= 0 else "Negative"
@@ -126,6 +144,38 @@ class TradierAdapter:
         if isinstance(options, dict):
             options = [options]
         return options
+
+    async def _aggregate_all_expiries(self, sym: str, spot: float) -> dict[float, dict]:
+        expirations = await self._get_expirations(sym)
+        selected = expirations[:12]
+        chains = await asyncio.gather(
+            *[self._fetch_chain(sym, exp) for exp in selected],
+            return_exceptions=True,
+        )
+        strike_agg: dict[float, dict] = {}
+        for chain in chains:
+            if isinstance(chain, Exception):
+                continue
+            for opt in chain:
+                k = opt.get("strike")
+                ct = (opt.get("option_type") or "").lower()
+                if k is None or ct not in ("call", "put"):
+                    continue
+                k = float(k)
+                gamma = float((opt.get("greeks") or {}).get("gamma") or 0)
+                oi = int(opt.get("open_interest") or 0)
+                vol = int(opt.get("volume") or 0)
+                if k not in strike_agg:
+                    strike_agg[k] = {"call_gex": 0.0, "put_gex": 0.0, "call_oi": 0, "put_oi": 0, "call_vol": 0, "put_vol": 0}
+                if ct == "call":
+                    strike_agg[k]["call_gex"] += gamma * oi * 100 * spot
+                    strike_agg[k]["call_oi"] += oi
+                    strike_agg[k]["call_vol"] += vol
+                else:
+                    strike_agg[k]["put_gex"] -= gamma * oi * 100 * spot
+                    strike_agg[k]["put_oi"] += oi
+                    strike_agg[k]["put_vol"] += vol
+        return strike_agg
 
     async def available_symbols(self) -> list[str]:
         return ["SPY", "QQQ", "SPX"]

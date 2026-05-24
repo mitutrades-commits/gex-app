@@ -1,7 +1,10 @@
 const BASE = import.meta.env.VITE_API_BASE ?? ''
 
-export async function fetchAllGEX() {
-  const res = await fetch(`${BASE}/api/gex`)
+export async function fetchAllGEX(expiry = null) {
+  const params = new URLSearchParams()
+  if (expiry) params.set("expiry", expiry)
+  const query = params.toString() ? `?${params}` : ""
+  const res = await fetch(`${BASE}/api/gex${query}`)
   if (!res.ok) throw new Error(`API ${res.status}: ${res.statusText}`)
   return res.json()
 }

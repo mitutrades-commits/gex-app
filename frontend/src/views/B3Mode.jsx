@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils"
 
 const LAYOUT_KEY = "gex.b3.layout"
 
-export default function B3Mode({ gexData }) {
+export default function B3Mode({ gexData, expiry, setExpiry }) {
   const { data, prevData, loading, error } = gexData ?? {}
   const [activeSymbol, setActiveSymbol] = useState(null)
   const [layout, setLayout] = useState(() => localStorage.getItem(LAYOUT_KEY) ?? "levels")
@@ -45,8 +45,28 @@ export default function B3Mode({ gexData }) {
 
   return (
     <div className="p-4 overflow-y-auto h-full">
-      {/* Layout toggle */}
-      <div className="flex justify-end mb-4">
+      {/* Toolbar: expiry toggle + layout toggle */}
+      <div className="flex items-center justify-between mb-4">
+        {/* Expiry toggle */}
+        <div className="flex items-center gap-1 rounded-lg border border-[var(--border)] bg-[var(--surface-2)] p-1">
+          {[
+            { value: null, label: "All Expiries" },
+            { value: "0dte", label: "0DTE" },
+          ].map(({ value, label }) => (
+            <button
+              key={label}
+              onClick={() => setExpiry(value)}
+              className={cn(
+                "font-mono text-[11px] font-semibold uppercase tracking-widest px-3 py-1.5 rounded-md transition-all duration-150",
+                expiry === value
+                  ? "bg-blue text-white shadow-md"
+                  : "text-[var(--text-2)] hover:text-[var(--text-1)] hover:bg-[var(--surface)]"
+              )}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
         <LayoutToggle layout={layout} onChange={switchLayout} />
       </div>
 
